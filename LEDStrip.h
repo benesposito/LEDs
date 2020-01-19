@@ -9,6 +9,8 @@ class LEDStrip {
         float brightness;
     public:
         LEDStrip(int led_count) : led_count(led_count) {};
+		void off();
+		void solid_color(CHSV color);
         void solid_rainbow(int hueDelta);
         void digital_snake(CRGB colors[], int num_of_colors, int segment_length);
         void analogue_snake(CHSV colors[]);

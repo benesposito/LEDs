@@ -1,5 +1,15 @@
 #include "LEDStrip.h"
 
+void LEDStrip::off() {
+	for(int i = 0; i < led_count; i++)
+		leds[i] = CRGB::Black;
+}
+
+void LEDStrip::solid_color(CHSV color) {
+	for(int i = 0; i < led_count; i++)
+		leds[i] = color;
+}
+
 void LEDStrip::digital_snake(CRGB colors[], int num_of_colors, int segment_length) {
     static int first_color_index = 0;
 
