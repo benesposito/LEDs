@@ -5,7 +5,12 @@ void LEDStrip::off() {
 		leds[i] = CRGB::Black;
 }
 
-void LEDStrip::solid_color(CHSV color) {
+void LEDStrip::solid_color(CRGB color) {
+	// Serial.print(color.r);
+	// Serial.print(",");
+	// Serial.print(color.g);
+	// Serial.print(",");
+	// Serial.println(color.b);
 	for(int i = 0; i < led_count; i++)
 		leds[i] = color;
 }
