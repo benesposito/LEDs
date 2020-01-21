@@ -31,7 +31,7 @@ class ColorForm extends React.Component {
 	handleSubmit(event) {
 		event.preventDefault();
 
-		fetch('http://10.250.75.218:5000/submit', {
+		fetch('http://10.250.73.241:5000/submit', {
 			method: 'POST',
 			// headers: {
 			// 	Accept: 'application/json',

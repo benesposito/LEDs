@@ -22,7 +22,7 @@ def submit():
 	for c in colors:
 		colors_str += str(c[0]) + ',' + str(c[1]) + ',' + str(c[2]) + ','
 
-	print('echo "{};{};{};{};" > /dev/ttyUSB0'.format(mode, brightness, len(colors), colors_str))
+	os.system('echo "{};{};{};{};" > /dev/ttyUSB0'.format(mode, brightness, len(colors), colors_str))
 	return ('', 204)
 
 if __name__ == '__main__':
