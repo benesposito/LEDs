@@ -1,4 +1,5 @@
-#!/home/pi/Documents/github/LEDs/server/env/bin/python3
+#!/mnt/c/Users/benesposito/Documents/GitHub/LEDs/server/env/bin/python3
+
 # -*- coding: utf-8 -*-
 import re
 import sys
