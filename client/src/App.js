@@ -51,20 +51,21 @@ class ColorForm extends React.Component {
 	}
 
 	handleEnable(event) {
-		this.setState({enabled: !this.state.enabled});
-
-		fetch('http://10.250.73.241:5000/toggle', {
-			method: 'POST',
-			headers: {
-				Accept: 'application/json',
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				enabled: this.state.enabled
-			})
-		}).then(res => {
-			console.log(res);
+		this.setState({enabled: !this.state.enabled}, () => {
+			fetch('http://10.250.73.241:5000/toggle', {
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					enabled: this.state.enabled
+				})
+			}).then(res => {
+				console.log(res);
+			});
 		});
+
 	}
 	
 	render() {

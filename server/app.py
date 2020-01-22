@@ -12,7 +12,8 @@ CORS(app)
 
 @app.route('/toggle', methods=['POST'])
 def toggle():
-	enabled = data['enabled']
+	data = json.loads(str(request.data, 'utf-8'))
+	enabled = 1 if data['enabled'] else 0
 	os.system(f'echo "{enabled};" > /dev/ttyUSB0')
 	return ('', 204)
 

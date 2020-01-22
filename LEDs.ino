@@ -81,8 +81,9 @@ void readInput(bool print_status) {
 	
 	unsigned long start = millis();
 	while(Serial.available() == 0 && millis() - start < 100) { }
+	c = getNextChar();
 
-	if(Serial.available() == 0) {
+	if(c == 10) {
 		enabled = tmp_mode;
 		
 		if(print_status) {
@@ -92,7 +93,6 @@ void readInput(bool print_status) {
 		// get brightness & check semicolon
 
 		tmp_brightness = 0;
-		c = getNextChar();
 
 		while(c != ';') {
 			if(isdigit(c))
