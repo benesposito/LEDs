@@ -15,6 +15,7 @@ class ColorForm extends React.Component {
 		super(props);
 
 		this.state = {
+			enabled: false,
 			R: 0,
 			G: 0,
 			B: 0
@@ -22,6 +23,7 @@ class ColorForm extends React.Component {
 
 		this.handleFieldChange = this.handleFieldChange.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
+		this.handleEnable = this.handleEnable.bind(this);
 	}
 
 	handleFieldChange(fieldId, value) {
@@ -33,13 +35,13 @@ class ColorForm extends React.Component {
 
 		fetch('http://10.250.73.241:5000/submit', {
 			method: 'POST',
-			// headers: {
-			// 	Accept: 'application/json',
-			// 	'Content-Type': 'application/json'
-			// },
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json'
+			},
 			body: JSON.stringify({
 				mode: 3,
-				colors: [[this.state.R, this.state.G, this.state.B]] // TODO: get r, g, b and put it as the one element
+				colors: [[this.state.R, this.state.G, this.state.B]]
 			})
 		}).then(res => {
 			console.log(res);
@@ -47,10 +49,28 @@ class ColorForm extends React.Component {
 
 		console.log(this.state);
 	}
+
+	handleEnable(event) {
+		this.setState({enabled: !this.state.enabled});
+
+		fetch('http://10.250.73.241:5000/toggle', {
+			method: 'POST',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				enabled: this.state.enabled
+			})
+		}).then(res => {
+			console.log(res);
+		});
+	}
 	
 	render() {
 		return (
 			<form onSubmit={this.handleSubmit}>
+				<input className="toggle-button" type="button" value={this.state.enabled? "On" : "Off"} onClick={this.handleEnable}></input>
 				<ColorSlider value="R" onChange={this.handleFieldChange}></ColorSlider>
 				<ColorSlider value="G" onChange={this.handleFieldChange}></ColorSlider>
 				<ColorSlider value="B" onChange={this.handleFieldChange}></ColorSlider>

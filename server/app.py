@@ -10,6 +10,12 @@ colors = []
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/toggle', methods=['POST'])
+def toggle():
+	enabled = data['enabled']
+	os.system(f'echo "{enabled};" > /dev/ttyUSB0')
+	return ('', 204)
+
 @app.route('/submit', methods=['POST'])
 def submit():
 	data = json.loads(str(request.data, 'utf-8'))
@@ -22,7 +28,7 @@ def submit():
 	for c in colors:
 		colors_str += str(c[0]) + ',' + str(c[1]) + ',' + str(c[2]) + ','
 
-	os.system('echo "{};{};{};{};" > /dev/ttyUSB0'.format(mode, brightness, len(colors), colors_str))
+	os.system(f'echo "{mode};{brightness};{len(colors)};{colors_str};" > /dev/ttyUSB0')
 	return ('', 204)
 
 if __name__ == '__main__':

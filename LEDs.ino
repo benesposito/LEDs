@@ -11,6 +11,7 @@ float variable_parameter = 1;
 
 LEDStrip led_strip(LED_COUNT);
 
+bool enabled = false;
 int mode = -1;
 CRGB colors[MAX_NUM_COLORS] = {CRGB(255, 0, 0), CRGB(0, 255, 0), CRGB(0, 0, 255), NULL, NULL, NULL};
 int num_colors = 3;
@@ -26,27 +27,20 @@ void loop() {
 	if(Serial.available())
 		readInput(false);
 
-	switch(mode) {
-		case 9:
-			led_strip.off();
-			break;
-		case 0:
-			led_strip.digital_snake(colors, num_colors, 2);
-			break;
-		case 1:
-			// analogue_snake((CHSV[]) { CHSV(0, 255, 255), CHSV(0, 0, 255), CHSV(60, 255, 255) });
-			break;
-		case 2:
-			led_strip.solid_rainbow(1);
-			break;
-		case 3:
-			// Serial.print(colors[0].r);
-			// Serial.print(",");
-			// Serial.print(colors[0].g);
-			// Serial.print(",");
-			// Serial.println(colors[0].b);
-			led_strip.solid_color(colors[0]);
-			break;
+	if(enabled) {
+		switch(mode) {
+			case 1:
+				led_strip.digital_snake(colors, num_colors, 2);
+				break;
+			case 2:
+				led_strip.solid_rainbow(1);
+				break;
+			case 3:
+				led_strip.solid_color(colors[0]);
+				break;
+		}
+	} else {
+		led_strip.off();
 	}
 
 	FastLED.show();
@@ -84,114 +78,125 @@ void readInput(bool print_status) {
 		terminateRead("No semicolon following mode!");
 		return;
 	}
+	
+	unsigned long start = millis();
+	while(Serial.available() == 0 && millis() - start < 100) { }
 
-	// get brightness & check semicolon
+	if(Serial.available() == 0) {
+		enabled = tmp_mode;
+		
+		if(print_status) {
+			Serial.println("Only mode, therefore it is being read as enabled");
+		}
+	} else {
+		// get brightness & check semicolon
 
-	tmp_brightness = 0;
-	c = getNextChar();
+		tmp_brightness = 0;
+		c = getNextChar();
 
-	while(c != ';') {
-		if(isdigit(c))
-			tmp_brightness = tmp_brightness * 10 + ctoi(c);
-		else {
-			Serial.println((int) c);
-			terminateRead("Above ASCII value was not expected in RGB input.");
+		while(c != ';') {
+			if(isdigit(c))
+				tmp_brightness = tmp_brightness * 10 + ctoi(c);
+			else {
+				Serial.println((int) c);
+				terminateRead("Above ASCII value was not expected in RGB input.");
+				return;
+			}
+
+			c = getNextChar();
+		}
+
+		// get num_colors
+		c = getNextChar();
+
+		if(isdigit(c)) {
+			tmp_num_colors = ctoi(c);
+			
+			if(print_status) {
+				Serial.print("num_colors: ");
+				Serial.println(tmp_num_colors);
+			}
+		} else {
+			terminateRead("num_colors is not a digit!");
 			return;
 		}
 
+		if(tmp_num_colors > MAX_NUM_COLORS)
+			tmp_num_colors = MAX_NUM_COLORS;
+
+		// check semicolon
 		c = getNextChar();
-	}
-
-	// get num_colors
-	c = getNextChar();
-
-	if(isdigit(c)) {
-		tmp_num_colors = ctoi(c);
 		
-		if(print_status) {
-			Serial.print("num_colors: ");
-			Serial.println(tmp_num_colors);
+		if(c == ';') {
+			if(print_status)
+				Serial.println("Mode finished.");
+		} else {
+			terminateRead("No semicolon following mode!");
+			return;
 		}
-	} else {
-		terminateRead("num_colors is not a digit!");
-		return;
-	}
 
-	if(tmp_num_colors > MAX_NUM_COLORS)
-		tmp_num_colors = MAX_NUM_COLORS;
+		// get colors
+		for(int i = 0; i < tmp_num_colors; i++) {
+			int rgb[3] = {0, 0, 0};
 
-	// check semicolon
-	c = getNextChar();
-	
-	if(c == ';') {
-		if(print_status)
-			Serial.println("Mode finished.");
-	} else {
-		terminateRead("No semicolon following mode!");
-		return;
-	}
-
-	// get colors
-	for(int i = 0; i < tmp_num_colors; i++) {
-		int rgb[3] = {0, 0, 0};
-
-		for(int j = 0; j < 3; j++) {
-			c = getNextChar();
-
-			while(c != ',') {
-				if(isdigit(c))
-					rgb[j] = rgb[j] * 10 + ctoi(c);
-				else {
-					Serial.println((int) c);
-					terminateRead("Above ASCII value was not expected in RGB input.");
-					return;
-				}
-
+			for(int j = 0; j < 3; j++) {
 				c = getNextChar();
+
+				while(c != ',') {
+					if(isdigit(c))
+						rgb[j] = rgb[j] * 10 + ctoi(c);
+					else {
+						Serial.println((int) c);
+						terminateRead("Above ASCII value was not expected in RGB input.");
+						return;
+					}
+
+					c = getNextChar();
+				}
 			}
+
+			tmp_colors[i] = CRGB(rgb[0], rgb[1], rgb[2]);
+
+			// Serial.print("Color #");
+			// Serial.print(i + 1);
+			// Serial.print(" is (");
+			// Serial.print(rgb[0]);
+			// Serial.print(", ");
+			// Serial.print(rgb[1]);
+			// Serial.print(", ");
+			// Serial.print(rgb[2]);
+			// Serial.println(").");
 		}
 
-		tmp_colors[i] = CRGB(rgb[0], rgb[1], rgb[2]);
+		// check semicolon
+		c = getNextChar();
+		
+		if(c == ';') {
+			if(print_status)
+				Serial.println("Colors finished.");
+		}
+		else {
+			terminateRead("No semicolon following Colors!");
+			return;
+		}
+		
+		c = getNextChar();
+		
+		if(c == 10) {
+			if(print_status)
+				Serial.println("Success!");
+		} else {
+			terminateRead("Message did not exit properly");
+			return;
+		}
 
-		// Serial.print("Color #");
-		// Serial.print(i + 1);
-		// Serial.print(" is (");
-		// Serial.print(rgb[0]);
-		// Serial.print(", ");
-		// Serial.print(rgb[1]);
-		// Serial.print(", ");
-		// Serial.print(rgb[2]);
-		// Serial.println(").");
-	}
+		mode = tmp_mode;
+		brightness = tmp_brightness;
+		num_colors = tmp_num_colors;
+		memcpy(colors, tmp_colors, sizeof(colors));
 
-	// check semicolon
-	c = getNextChar();
-	
-	if(c == ';') {
-		if(print_status)
-			Serial.println("Colors finished.");
+		FastLED.setBrightness(brightness * 255.0 / 100.0);
 	}
-	else {
-		terminateRead("No semicolon following Colors!");
-		return;
-	}
-	
-	c = getNextChar();
-	
-	if(c == 10) {
-		if(print_status)
-			Serial.println("Success!");
-	} else {
-		terminateRead("Message did not exit properly");
-		return;
-	}
-
-	mode = tmp_mode;
-	brightness = tmp_brightness;
-	num_colors = tmp_num_colors;
-	memcpy(colors, tmp_colors, sizeof(colors));
-
-	FastLED.setBrightness(brightness * 255.0 / 100.0);
 }
 
 void terminateRead(String message) {
