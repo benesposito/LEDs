@@ -16,18 +16,32 @@ class ColorForm extends React.Component {
 
 		this.state = {
 			enabled: false,
-			R: 0,
-			G: 0,
-			B: 0
+			mode: 1,
+			numColors: 1,
+			colors: [[0, 0, 0]],
+			selectedColorBox: 0,
+			r: 0,
+			g: 0,
+			b: 0,
 		};
 
-		this.handleFieldChange = this.handleFieldChange.bind(this);
+		this.handleColorSlider = this.handleColorSlider.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleEnable = this.handleEnable.bind(this);
+		this.onColorBoxClick = this.onColorBoxClick.bind(this);
+		this.handleModeUpdate = this.handleModeUpdate.bind(this);
+		this.addColor = this.addColor.bind(this);
+		this.removeColor = this.removeColor.bind(this);
 	}
 
-	handleFieldChange(fieldId, value) {
-		this.setState({ [fieldId]: value });
+	handleColorSlider(fieldId, value) {
+		this.setState({ [fieldId.toLowerCase()]: value }, () => {
+			this.setState(state => {
+				let colors = state.colors;
+				colors[state.selectedColorBox] = [state.r, state.g, state.b];
+				return({ colors });
+			});
+		});
 	}
 	
 	handleSubmit(event) {
@@ -41,13 +55,11 @@ class ColorForm extends React.Component {
 			},
 			body: JSON.stringify({
 				mode: 3,
-				colors: [[this.state.R, this.state.G, this.state.B]]
+				colors: this.state.colors
 			})
 		}).then(res => {
 			console.log(res);
 		});
-
-		console.log(this.state);
 	}
 
 	handleEnable(event) {
@@ -65,16 +77,62 @@ class ColorForm extends React.Component {
 				console.log(res);
 			});
 		});
+	}
 
+	onColorBoxClick(index) {
+		this.setState({
+			selectedColorBox: index,
+			r: this.state.colors[index][0],
+			g: this.state.colors[index][1],
+			b: this.state.colors[index][2],
+		});
+	}
+
+	handleModeUpdate(event) {
+		this.setState({ mode: event.target.value });
+	}
+
+	addColor() {
+		this.setState(state => {
+			let colors = state.colors;
+			colors.push([0, 0, 0]);
+
+			return ({ numColors: this.state.numColors + 1, colors });
+		});
+	}
+
+	removeColor() {
+		this.setState(state => {
+			let colors = state.colors;
+			colors.pop();
+
+			let numColors = this.state.numColors > 0? this.state.numColors - 1 : 0;
+
+			return ({ numColors, colors });
+		});
 	}
 	
 	render() {
+		let rgbStrings = [];
+
+		for(let color of this.state.colors)
+			rgbStrings.push(`rgb(${color[0]}, ${color[1]}, ${color[2]})`);
+
 		return (
 			<form onSubmit={this.handleSubmit}>
 				<input className="toggle-button" type="button" value={this.state.enabled? "On" : "Off"} onClick={this.handleEnable}></input>
-				<ColorSlider value="R" onChange={this.handleFieldChange}></ColorSlider>
-				<ColorSlider value="G" onChange={this.handleFieldChange}></ColorSlider>
-				<ColorSlider value="B" onChange={this.handleFieldChange}></ColorSlider>
+				<div className="mode-selector">
+					<label><input type="radio" name="mode" value="1" onClick={this.handleModeUpdate} defaultChecked></input>Solid</label>
+					<label><input type="radio" name="mode" value="2" onClick={this.handleModeUpdate}></input>Snake</label>
+				</div>
+				<ColorSlider name="R" value={this.state.r} onChange={this.handleColorSlider}></ColorSlider>
+				<ColorSlider name="G" value={this.state.g} onChange={this.handleColorSlider}></ColorSlider>
+				<ColorSlider name="B" value={this.state.b} onChange={this.handleColorSlider}></ColorSlider>
+				<div className="color-selector">
+					{[...Array(this.state.numColors).keys()].map(i => <ColorBox key={i} id={`color-box-${i+1}`} style={{backgroundColor: rgbStrings[i]}} onClick={this.onColorBoxClick}></ColorBox>)}
+					<input type="button" className="add-color-button" value="+" onClick={this.addColor}></input>
+					<input type="button" className="add-color-button" value="-" onClick={this.removeColor}></input>
+				</div>
 				<input type="submit" value="Submit"></input>
 			</form>
 		);
@@ -90,13 +148,19 @@ class ColorSlider extends React.Component {
 		this.handleChange = this.handleChange.bind(this);
 	}
 
+	static getDerivedStateFromProps(props, currentState) {
+		return({
+			value: props.value
+		});
+	}
+
 	handleChange(event) {
 		let val = parseInt(event.target.value);
 		
 		if(val > 255)
 			val = 255;
 		
-		this.props.onChange(this.props.value, val);
+		this.props.onChange(this.props.name, val);
 		this.setState({ value: val });
 	}
 	
@@ -104,10 +168,30 @@ class ColorSlider extends React.Component {
 		return (
 			<div className="color-slider">
 				<span>
-					<label htmlFor={this.props.value + "-range"}>{this.props.value}</label>
-					<input type="range" min="0" max="255" value={this.state.value} name={this.props.value + "-range"} onChange={this.handleChange}></input>
-					<input type="text" name={this.props.value + "-number"} value={this.state.value} onChange={this.handleChange}></input>
+					<label htmlFor={this.props.name + "-range"}>{this.props.name}</label>
+					<input type="range" min="0" max="255" value={this.state.value} name={this.props.name + "-range"} onChange={this.handleChange}></input>
+					<input type="text" name={this.props.name + "-number"} value={this.state.value} onChange={this.handleChange}></input>
 				</span>
+			</div>
+		);
+	}
+}
+
+class ColorBox extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.onClick = this.onClick.bind(this);
+	}
+
+	onClick(event) {
+		this.props.onClick(parseInt(/.*(\d{1})/.exec(this.props.id)[1]) - 1);
+	}
+
+	render() {
+		return (
+			<div className="color-box" style={this.props.style} onClick={this.onClick}>
+
 			</div>
 		);
 	}

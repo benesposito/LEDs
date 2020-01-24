@@ -30,10 +30,10 @@ void loop() {
 	if(enabled) {
 		switch(mode) {
 			case 1:
-				led_strip.digital_snake(colors, num_colors, 2);
+				led_strip.solid_rainbow(1);
 				break;
 			case 2:
-				led_strip.solid_rainbow(1);
+				led_strip.digital_snake(colors, num_colors, 2);
 				break;
 			case 3:
 				led_strip.solid_color(colors[0]);

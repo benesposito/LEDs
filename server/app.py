@@ -29,7 +29,7 @@ def submit():
 	for c in colors:
 		colors_str += str(c[0]) + ',' + str(c[1]) + ',' + str(c[2]) + ','
 
-	os.system(f'echo "{mode};{brightness};{len(colors)};{colors_str};" > /dev/ttyUSB0')
+	print(f'echo "{mode};{brightness};{len(colors)};{colors_str};" > /dev/ttyUSB0')
 	return ('', 204)
 
 if __name__ == '__main__':

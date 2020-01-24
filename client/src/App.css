@@ -22,3 +22,25 @@
 .toggle-button {
 	
 }
+
+.color-selector {
+	display: flex;
+}
+
+.color-box {
+	display: inline-block;
+	width: 100px;
+	height: 100px;
+	border: solid black 2px;
+	margin: 10px;
+}
+
+.add-color-button {
+	margin: 10px;
+	height: 100px;
+	width: 100px;
+}
+
+.mode-selector {
+	padding: 5px;
+}
