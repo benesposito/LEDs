@@ -23,6 +23,7 @@ class ColorForm extends React.Component {
 			r: 0,
 			g: 0,
 			b: 0,
+			brightness: 100
 		};
 
 		this.handleColorSlider = this.handleColorSlider.bind(this);
@@ -54,7 +55,7 @@ class ColorForm extends React.Component {
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
-				mode: 3,
+				mode: this.state.mode,
 				colors: this.state.colors
 			})
 		}).then(res => {
@@ -123,11 +124,18 @@ class ColorForm extends React.Component {
 				<input className="toggle-button" type="button" value={this.state.enabled? "On" : "Off"} onClick={this.handleEnable}></input>
 				<div className="mode-selector">
 					<label><input type="radio" name="mode" value="1" onClick={this.handleModeUpdate} defaultChecked></input>Solid</label>
-					<label><input type="radio" name="mode" value="2" onClick={this.handleModeUpdate}></input>Snake</label>
+					<label><input type="radio" name="mode" value="2" onClick={this.handleModeUpdate}></input>Rainbow</label>
 				</div>
-				<ColorSlider name="R" value={this.state.r} onChange={this.handleColorSlider}></ColorSlider>
-				<ColorSlider name="G" value={this.state.g} onChange={this.handleColorSlider}></ColorSlider>
-				<ColorSlider name="B" value={this.state.b} onChange={this.handleColorSlider}></ColorSlider>
+				<div className="sliders">
+					<div>
+						<ColorSlider name="R" value={this.state.r} onChange={this.handleColorSlider}></ColorSlider>
+						<ColorSlider name="G" value={this.state.g} onChange={this.handleColorSlider}></ColorSlider>
+						<ColorSlider name="B" value={this.state.b} onChange={this.handleColorSlider}></ColorSlider>
+					</div>
+					<div>
+						<ColorSlider name="Brightness" value={this.state.brightness} onChange={this.handleColorSlider}></ColorSlider>
+					</div>
+				</div>
 				<div className="color-selector">
 					{[...Array(this.state.numColors).keys()].map(i => <ColorBox key={i} id={`color-box-${i+1}`} style={{backgroundColor: rgbStrings[i]}} onClick={this.onColorBoxClick}></ColorBox>)}
 					<input type="button" className="add-color-button" value="+" onClick={this.addColor}></input>
@@ -186,12 +194,12 @@ class ColorBox extends React.Component {
 
 	onClick(event) {
 		this.props.onClick(parseInt(/.*(\d{1})/.exec(this.props.id)[1]) - 1);
-	}
+	}f
 
 	render() {
 		return (
 			<div className="color-box" style={this.props.style} onClick={this.onClick}>
-
+				
 			</div>
 		);
 	}

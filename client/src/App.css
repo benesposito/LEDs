@@ -44,3 +44,7 @@
 .mode-selector {
 	padding: 5px;
 }
+
+.sliders {
+	display: flex;
+}

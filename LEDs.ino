@@ -30,13 +30,13 @@ void loop() {
 	if(enabled) {
 		switch(mode) {
 			case 1:
-				led_strip.solid_rainbow(1);
+				led_strip.solid_color(colors[0]);
 				break;
 			case 2:
-				led_strip.digital_snake(colors, num_colors, 2);
+				led_strip.solid_rainbow(1);
 				break;
 			case 3:
-				led_strip.solid_color(colors[0]);
+				led_strip.digital_snake(colors, num_colors, 2);
 				break;
 		}
 	} else {
@@ -194,7 +194,6 @@ void readInput(bool print_status) {
 		brightness = tmp_brightness;
 		num_colors = tmp_num_colors;
 		memcpy(colors, tmp_colors, sizeof(colors));
-
 		FastLED.setBrightness(brightness * 255.0 / 100.0);
 	}
 }
