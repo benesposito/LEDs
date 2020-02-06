@@ -194,7 +194,7 @@ class ColorBox extends React.Component {
 
 	onClick(event) {
 		this.props.onClick(parseInt(/.*(\d{1})/.exec(this.props.id)[1]) - 1);
-	}f
+	}
 
 	render() {
 		return (
