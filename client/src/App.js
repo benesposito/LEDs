@@ -48,7 +48,7 @@ class ColorForm extends React.Component {
 	handleSubmit(event) {
 		event.preventDefault();
 
-		fetch('http://10.250.73.241:5000/submit', {
+		fetch('http://192.168.1.112:5000/submit', {
 			method: 'POST',
 			headers: {
 				Accept: 'application/json',
@@ -56,7 +56,8 @@ class ColorForm extends React.Component {
 			},
 			body: JSON.stringify({
 				mode: this.state.mode,
-				colors: this.state.colors
+				colors: this.state.colors,
+				brightness: this.state.brightness
 			})
 		}).then(res => {
 			console.log(res);
@@ -65,7 +66,7 @@ class ColorForm extends React.Component {
 
 	handleEnable(event) {
 		this.setState({enabled: !this.state.enabled}, () => {
-			fetch('http://10.250.73.241:5000/toggle', {
+			fetch('http://192.168.1.112:5000/toggle', {
 				method: 'POST',
 				headers: {
 					Accept: 'application/json',

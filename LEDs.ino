@@ -17,7 +17,7 @@ CRGB colors[MAX_NUM_COLORS] = {CRGB(255, 0, 0), CRGB(0, 255, 0), CRGB(0, 0, 255)
 int num_colors = 3;
 
 void setup() {
-	FastLED.setBrightness(50);
+	FastLED.setBrightness(255);
 	FastLED.addLeds<NEOPIXEL, DATA>(led_strip.getLeds(), LED_COUNT);
 
 	Serial.begin(1200);
@@ -194,7 +194,7 @@ void readInput(bool print_status) {
 		brightness = tmp_brightness;
 		num_colors = tmp_num_colors;
 		memcpy(colors, tmp_colors, sizeof(colors));
-		FastLED.setBrightness(brightness * 255.0 / 100.0);
+		FastLED.setBrightness(brightness);
 	}
 }
 

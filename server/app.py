@@ -14,6 +14,7 @@ CORS(app)
 def toggle():
 	data = json.loads(str(request.data, 'utf-8'))
 	enabled = 1 if data['enabled'] else 0
+	print(f'echo "{enabled};" > /dev/ttyUSB0')
 	os.system(f'echo "{enabled};" > /dev/ttyUSB0')
 	return ('', 204)
 
@@ -23,14 +24,15 @@ def submit():
 
 	mode = data['mode']
 	colors = data['colors']
+	brightness = data['brightness']
 
 	colors_str = ''
 
 	for c in colors:
 		colors_str += str(c[0]) + ',' + str(c[1]) + ',' + str(c[2]) + ','
 
-	print(f'echo "{mode};{brightness};{len(colors)};{colors_str};" > /dev/ttyUSB0')
 	os.system(f'echo "{mode};{brightness};{len(colors)};{colors_str};" > /dev/ttyUSB0')
+	print(f'echo "{mode};{brightness};{len(colors)};{colors_str};" > /dev/ttyUSB0')
 	return ('', 204)
 
 if __name__ == '__main__':
