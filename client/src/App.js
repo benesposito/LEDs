@@ -2,6 +2,8 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+const IP = '10.0.0.191'
+
 function App() {
   return (
     <div className="App">
@@ -48,7 +50,7 @@ class ColorForm extends React.Component {
 	handleSubmit(event) {
 		event.preventDefault();
 
-		fetch('http://192.168.1.112:5000/submit', {
+		fetch('http://' + IP + ':5000/submit', {
 			method: 'POST',
 			headers: {
 				Accept: 'application/json',
@@ -66,7 +68,7 @@ class ColorForm extends React.Component {
 
 	handleEnable(event) {
 		this.setState({enabled: !this.state.enabled}, () => {
-			fetch('http://192.168.1.112:5000/toggle', {
+			fetch('http://' + IP + ':5000/toggle', {
 				method: 'POST',
 				headers: {
 					Accept: 'application/json',
