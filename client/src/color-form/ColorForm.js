@@ -42,7 +42,7 @@ class ColorForm extends React.Component {
 	handleSubmit(event) {
 		event.preventDefault();
 
-		fetch(`http://'${IP}:5000/submit`, {
+		fetch(`http://${IP}:5000/submit`, {
 			method: 'POST',
 			headers: {
 				Accept: 'application/json',
@@ -60,7 +60,7 @@ class ColorForm extends React.Component {
 
 	handleEnable(event) {
 		this.setState({enabled: !this.state.enabled}, () => {
-			fetch(`http://'${IP}:5000/toggle`, {
+			fetch(`http://${IP}:5000/toggle`, {
 				method: 'POST',
 				headers: {
 					Accept: 'application/json',
