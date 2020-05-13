@@ -1,5 +1,5 @@
 from flask import Flask, request
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import os
 import json
 
@@ -8,9 +8,10 @@ brightness = 50
 colors = []
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, support_credentials=True)
 
 @app.route('/toggle', methods=['POST'])
+@cross_origin(supports_credentials=True)
 def toggle():
 	data = json.loads(str(request.data, 'utf-8'))
 	enabled = 1 if data['enabled'] else 0
@@ -19,6 +20,7 @@ def toggle():
 	return ('', 204)
 
 @app.route('/submit', methods=['POST'])
+@cross_origin(supports_credentials=True)
 def submit():
 	data = json.loads(str(request.data, 'utf-8'))
 
@@ -36,4 +38,4 @@ def submit():
 	return ('', 204)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')
