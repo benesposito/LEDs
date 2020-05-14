@@ -15,6 +15,8 @@ class ColorForm extends React.Component {
 		this.state = {
 			mode: 1,
 			colors: undefined,
+			param1: undefined,
+			param2: undefined,
 			brightness: 100
 		};
 

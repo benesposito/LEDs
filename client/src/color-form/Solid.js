@@ -24,7 +24,7 @@ class Solid extends React.Component {
 				let colors = state.colors;
 				colors[state.selectedColorIndex] = [state.currentR, state.currentG, state.currentB];
 				return({ colors });
-			}, this.props.onChange(this.state.colors, this.state.selectedColorIndex, undefined));
+			}, this.props.onChange(this.state.colors, this.state.selectedColorIndex, 0));
 		});
 	}
 
@@ -37,7 +37,7 @@ class Solid extends React.Component {
 			currentB: this.state.colors[index][2],
 		});
 
-		this.props.onChange(this.state.colors, index, undefined)
+		this.props.onChange(this.state.colors, index, 0);
 	}
 
 	render() {
