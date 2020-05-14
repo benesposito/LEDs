@@ -1,0 +1,24 @@
+.color-slider {
+	padding-bottom: 10pt;
+}
+
+.color-slider * {
+	vertical-align: middle;
+}
+
+.color-slider label {
+	padding-right: 5px;
+	font-size: 14pt;
+	width: 20px;
+	display: inline-block;
+}
+
+.color-slider input[type="text"] {
+	width: 40px;
+	line-height: 30px;
+	font-size: 14pt;
+}
+
+.sliders {
+	display: flex;
+}
