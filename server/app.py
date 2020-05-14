@@ -36,7 +36,7 @@ def submit():
 
 	if mode == 1: # Solid
 		color = colors[param1]
-		colors_str = '{},{},{},'.format(colors[0], color[1], color[2])
+		colors_str = '{},{},{},'.format(color[0], color[1], color[2])
 		colors_len = 1
 	else:
 		colors_str = ''
@@ -48,4 +48,4 @@ def submit():
 	return ('', 204)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run()
