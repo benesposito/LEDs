@@ -1,11 +1,12 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import ColorForm from './color-form/ColorForm';
+import Enabler from './enabler/Enabler';
 
 function App() {
   return (
     <div className="App">
+		<Enabler></Enabler>
 		<ColorForm></ColorForm>
     </div>
   );

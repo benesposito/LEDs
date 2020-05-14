@@ -1,19 +1,20 @@
 import React from 'react';
+import './ColorBox.css';
 
 class ColorBox extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.onClick = this.onClick.bind(this);
+		this.handleOnClick = this.handleOnClick.bind(this);
 	}
 
-	onClick(event) {
-		this.props.onClick(parseInt(/.*(\d{1})/.exec(this.props.id)[1]) - 1);
+	handleOnClick(event) {
+		this.props.onClick(this.props.id);
 	}
 
 	render() {
 		return (
-			<div className="color-box" style={this.props.style} onClick={this.onClick}>
+			<div className="color-box" style={{backgroundColor: this.props.color}} onClick={this.handleOnClick}>
 				
 			</div>
 		);

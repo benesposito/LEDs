@@ -1,4 +1,5 @@
 import React from 'react';
+import './ColorSlider.css';
 
 class ColorSlider extends React.Component {
 	constructor(props) {
@@ -16,13 +17,15 @@ class ColorSlider extends React.Component {
 	}
 
 	handleChange(event) {
-		let val = parseInt(event.target.value);
-		
-		if(val > 255)
-			val = 255;
-		
-		this.props.onChange(this.props.name, val);
-		this.setState({ value: val });
+		let value = parseInt(event.target.value);
+
+		if(!value)
+			value = 0;
+		else if (value > 255)
+			value = 255;
+
+		this.props.onChange(value, this.props.name);
+		this.setState({ value });
 	}
 	
 	render() {
