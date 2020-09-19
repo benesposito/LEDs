@@ -9,7 +9,7 @@ class ModeSelector extends React.Component {
 	}
 
 	handleModeUpdate(event) {
-		this.setState({ mode: event.target.value });
+		this.props.onChange(event.target.value);
 	}
 
 	render() {
