@@ -6,15 +6,20 @@
 
 #define MAX_NUM_COLORS 6
 
-float brightness = 1;
-float variable_parameter = 1;
+struct COLOR {
+	long int r, g, b;
+};
+
+struct {
+	bool enabled;
+	long int mode;
+	long int brightness;
+	long int NUM_COLORS;
+	COLOR colors[10];
+} state;
 
 LEDStrip led_strip(LED_COUNT);
-
-bool enabled = false;
-int mode = -1;
 CRGB colors[MAX_NUM_COLORS] = {CRGB(255, 0, 0), CRGB(0, 255, 0), CRGB(0, 0, 255), NULL, NULL, NULL};
-int num_colors = 3;
 
 void setup() {
 	FastLED.setBrightness(255);
@@ -29,6 +34,7 @@ void loop() {
 
 	if(enabled) {
 		switch(mode) {
+			// mode 0 is not used as a 'disabled' mode because I wanted to preserve the previously selected mode
 			case 1:
 				led_strip.solid_color(colors[0]);
 				break;

@@ -9,6 +9,7 @@ class LEDStrip {
         float brightness;
     public:
         LEDStrip(int led_count) : led_count(led_count) {};
+
 		void off();
 		void solid_color(CRGB color);
         void solid_rainbow(int hueDelta);
