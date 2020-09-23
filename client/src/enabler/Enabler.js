@@ -1,6 +1,6 @@
 import React from 'react';
 
-const IP = '10.0.0.191';
+const IP = 'localhost';
 
 class Enabler extends React.Component {
 	constructor(props) {

@@ -2,12 +2,15 @@ import React from 'react';
 import ColorSlider from '../color-slider/ColorSlider'
 import ColorBox from '../color-box/ColorBox'
 
+const MAX_COLORS = 10
+
 class Solid extends React.Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			colors: Array(2).fill([0, 0, 0]),
+			colors: Array(MAX_COLORS).fill([0, 0, 0]),
+			numColors: 3,
 			selectedColorIndex: 0,
 			currentR: 0,
 			currentG: 0,
@@ -43,7 +46,7 @@ class Solid extends React.Component {
 	render() {
 		let colorBoxes = [];
 		
-		for(let i = 0; i < this.state.colors.length; i++) {
+		for(let i = 0; i < this.state.numColors; i++) {
 			let color = `rgb(${this.state.colors[i][0]}, ${this.state.colors[i][1]}, ${this.state.colors[i][2]})`;
 			colorBoxes.push(<ColorBox key={i} id={`color-box-${i}`} color={color} onClick={this.onColorBoxClick}></ColorBox>);
 		}

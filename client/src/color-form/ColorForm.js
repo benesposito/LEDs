@@ -4,7 +4,7 @@ import ModeSelector from '../mode-selector/ModeSelector';
 import Solid from './Solid';
 import ColorSlider from '../color-slider/ColorSlider';
 
-const IP = '10.0.0.191';
+const IP = 'localhost';
 
 class ColorForm extends React.Component {
 	constructor(props) {
