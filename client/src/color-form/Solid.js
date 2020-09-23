@@ -16,6 +16,8 @@ class Solid extends React.Component {
 			currentG: 0,
 			currentB: 0
 		};
+		
+		this.props.onChange(this.state.colors, this.state.selectedColorIndex, null)
 
 		this.onColorBoxClick = this.onColorBoxClick.bind(this);
 		this.handleColorSlider = this.handleColorSlider.bind(this);
@@ -27,7 +29,7 @@ class Solid extends React.Component {
 				let colors = state.colors;
 				colors[state.selectedColorIndex] = [state.currentR, state.currentG, state.currentB];
 				return({ colors });
-			}, this.props.onChange(this.state.colors, this.state.selectedColorIndex, 0));
+			}, this.props.onChange(this.state.colors, this.state.selectedColorIndex, null));
 		});
 	}
 
@@ -40,7 +42,7 @@ class Solid extends React.Component {
 			currentB: this.state.colors[index][2],
 		});
 
-		this.props.onChange(this.state.colors, index, 0);
+		this.props.onChange(this.state.colors, index, null);
 	}
 
 	render() {
