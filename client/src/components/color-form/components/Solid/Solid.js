@@ -1,6 +1,6 @@
 import React from 'react';
-import ColorSlider from '../color-slider/ColorSlider'
-import ColorBox from '../color-box/ColorBox'
+import ColorSlider from '../../../color-slider/ColorSlider'
+import ColorBox from '../../../color-box/ColorBox'
 
 const MAX_COLORS = 10
 

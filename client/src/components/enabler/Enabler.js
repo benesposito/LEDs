@@ -1,6 +1,5 @@
 import React from 'react';
-
-const IP = 'localhost';
+import { setEnabled } from '../../services/api';
 
 class Enabler extends React.Component {
 	constructor(props) {
@@ -14,24 +13,11 @@ class Enabler extends React.Component {
 	}
 
 	handleEnable(event) {
-		this.setState({enabled: !this.state.enabled}, () => {
-			fetch(`http://${IP}:5000/toggle`, {
-				method: 'POST',
-				headers: {
-					Accept: 'application/json',
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					enabled: this.state.enabled
-				})
-			}).then(res => {
-				console.log(res);
-			});
-		});
+		this.setState({enabled: !this.state.enabled}, () => setEnabled(this.state.enabled));
 	}
 
 	render() {
-		return (	
+		return (
 			<input className="toggle-button" type="button" value={this.state.enabled? "On" : "Off"} onClick={this.handleEnable}></input>
 		);
 	}

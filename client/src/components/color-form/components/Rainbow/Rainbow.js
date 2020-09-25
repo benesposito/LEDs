@@ -1,5 +1,5 @@
 import React from 'react';
-import ColorSlider from '../color-slider/ColorSlider';
+import ColorSlider from '../../../color-slider/ColorSlider';
 
 class Rainbow extends React.Component {
 	constructor(props) {

@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
-import ColorForm from './color-form/ColorForm';
-import Enabler from './enabler/Enabler';
+import ColorForm from '../../components/color-form/ColorForm';
+import Enabler from '../../components/enabler/Enabler';
 
 function App() {
   return (
