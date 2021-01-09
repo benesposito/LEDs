@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass, field, astuple
-from typing import List
+from typing import List, Tuple
 import struct
 from serial import Serial
 import socket
@@ -11,67 +11,66 @@ class Color:
 	g: int = 0
 	b: int = 0
 
-	def __str__(self):
-		return '({}, {}, {})'.format(self.r, self.g, self.b)
-
 @dataclass
 class State:
 	enabled: bool = False
 	mode: int = 1
 	brightness: int = 100
-	NUM_COLORS: int = 10
-	colors: List[Color] = field(default_factory=list)
+	_NUM_COLORS: int = 10
+	colors: Tuple[Color, ...] = (Color(),) * _NUM_COLORS
 
-	def __str__(self):
-		return """
-	enabled: {}
-	mode: {}
-	brightness: {}
-	NUM_COLORS: {}
-	colors: {}""".format(self.enabled, self.mode, self.brightness, self.NUM_COLORS, [str(c) for c in self.colors])
+class Device:
+	def write(self, payload):
+		raise NotImplementedError()
 
-class DeviceType(Enum):
-	USB = 0
-	UDP = 1
+	def read(self):
+		raise NotImplementedError()
 
-class SerialCommunicator:
-	UDP_PORT = 5568
+class USBDevice(Device):
+	BAUD_RATE = 1200
 
-	def __init__(self, device='/dev/ttyUSB0'):
+	def __init__(self, port: str):
+		self.io = Serial(port, USBDevice.BAUD_RATE)
+
+	def write(self, payload):
+		self.io.write(payload)
+
+	def read(self):
+		while self.io.in_waiting <= 0:
+			return self.io.read()
+
+
+class UDPDevice(Device):
+	UDP_PORT = 1111
+
+	def __init__(self, ip: str):
+		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		self.socket.connect((ip, UDPDevice.UDP_PORT))
+
+	def write(self, payload: bytes):
+		return self.socket.send(payload)
+
+def _is_valid_ip(ip: str) -> bool:
+	subnets = ip.split('.')
+	return len(subnets) == 4 and all(0 < int(subnet) < 256 for subnet in subnets)
+
+class Arduino:
+	def __init__(self, ip_or_port: str):
 		self.state = State()
-		self.set_device(device)
 
-		for _ in range(self.state.NUM_COLORS):
-			self.state.colors.append(Color())
-	
-	def set_device(self, device):
-		if device.startswith('/dev/'):
-			self.arduino = Serial(device, 1200)
-			self.device_type = DeviceType.USB
+		if _is_valid_ip(ip_or_port):
+			self.device = UDPDevice(ip_or_port)
 		else:
-			self.arduino = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-			self.device_type = DeviceType.UDP
-
-		self.device_str = device
+			self.device = USBDevice(ip_or_port)
 
 	def send(self):
-		packstring = '=?iii{}B'.format(3 * self.state.NUM_COLORS)
-		payload = struct.pack(packstring, self.state.enabled, self.state.mode, self.state.brightness, self.state.NUM_COLORS, *[val for color in map(astuple, self.state.colors) for val in color])
+		packstring = '=?BBB{}B'.format(3 * self.state._NUM_COLORS)
+		payload = struct.pack(packstring, self.state.enabled, self.state.mode, self.state.brightness, self.state._NUM_COLORS, *[val for color in map(astuple, self.state.colors) for val in color])
 
-		print('Sending: {}'.format(self.state))
+		return self.device.write(payload)
 
-		if self.device_type == DeviceType.USB:
-			self.arduino.write(payload)
-		else if self.device_type = DeviceType.UDP:
-			self.arduino.sendto(payload, self.device_str, UDP_PORT)
-		else:
-			print('Unknown device type: {}'.format(self.device_type))
-	
 	def read(self):
-		while(self.arduino.in_waiting > 0):
-			print(self.arduino.read().decode('utf-8'), end='')
+		return self.device.read()
 
-def test():
-	a = SerialCommunicator('/dev/ttyUSB0')
-	a.send()
-	return a
+	def __str__(self):
+		return str(self.state)
