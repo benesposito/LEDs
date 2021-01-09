@@ -57,16 +57,21 @@ if True:
 	num_colors = query_for_variable('number of colors', 1, lambda x: 0 < x <= 10)
 
 	for i in range(num_colors):
-		state.colors[i].r = query_for_variable('color_%d.r' % (i), default_color.r, lambda x: 0 <= x < 256)
-		state.colors[i].g = query_for_variable('color_%d.g' % (i), default_color.g, lambda x: 0 <= x < 256)
-		state.colors[i].b = query_for_variable('color_%d.b' % (i), default_color.b, lambda x: 0 <= x < 256)
+		color = Color()
+		color.r = query_for_variable('color_%d.r' % (i), default_color.r, lambda x: 0 <= x < 256)
+		color.g = query_for_variable('color_%d.g' % (i), default_color.g, lambda x: 0 <= x < 256)
+		color.b = query_for_variable('color_%d.b' % (i), default_color.b, lambda x: 0 <= x < 256)
+
+		state.colors.append(color)
 
 	print()
 
 print(state)
 
 arduino.state = state
-# arduino.send()
+
+print('sending')
+arduino.send()
 
 
 # sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
