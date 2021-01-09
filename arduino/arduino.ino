@@ -11,34 +11,33 @@
 
 #define UDP_PORT 5568
 
-struct COLOR {
-	uint8_t r, g, b;
+struct state_s {
+	bool enabled;
+	uint8_t mode;
+	uint8_t brightness;
+	uint8_t NUM_COLORS;
+	CRGB colors[MAX_NUM_COLORS];
 };
 
-struct {
-	bool enabled;
-	long int mode;
-	long int brightness;
-	long int NUM_COLORS;
-	CRGB colors[MAX_NUM_COLORS];
-} state;
-
+struct state_s state;
 WiFiUDP udp;
 LEDStrip led_strip(LED_COUNT);
 
 void setup() {
 	Serial.begin(1200);
-
 	WiFi.begin("Chestnut Square", "8884Pavlov");
 
 	while(WiFi.status() != WL_CONNECTED) {
 		char output[64];
-		sprintf(output, "Connecting... [%d]\n", WiFi.status());
+		snprintf(output, sizeof(output), "Connecting... [%d]\n", WiFi.status());
 		Serial.print(output);
 		delay(500);
 	}
 
+	int ret = udp.begin(1111);
+
 	Serial.println("Connected!");
+	Serial.println(WiFi.localIP());
 
 	FastLED.addLeds<NEOPIXEL, DATA_PIN>(led_strip.getLeds(), LED_COUNT);
 	FastLED.setBrightness(10);
@@ -50,32 +49,33 @@ void setup() {
 	state.colors[0] = CRGB(0, 0, 255);
 }
 
-void loop() {
-	char buff[256];
-	sprintf(buff, "Color 0: %d,%d,%d", state.colors[0].r, state.colors[0].g, state.colors[0].b);
-	Serial.println(buff);
-	
+void loop() {	
 	check_for_new_state();
 
-	Serial.println(state.mode);
+	char state_info[256];
+	snprintf(state_info, sizeof(state_info), "(%d, %d, %d)\n", state.enabled, state.mode, state.brightness);
+	Serial.print(state_info);
+
 	if(state.enabled) {
 		switch(state.mode) {
-			// mode 0 is not used as a 'disabled' mode because I wanted to preserve the previously selected mode
-			case 1:
-				led_strip.solid_color(state.colors[0]);
-				break;
-			case 2:
-				led_strip.solid_rainbow(1);
-				break;
-			case 3:
-				led_strip.digital_snake(state.colors, state.NUM_COLORS, 2);
-				break;
+		// mode 0 is not used as a 'disabled' mode because I wanted to preserve the previously selected mode
+		case 1:
+			led_strip.solid_color(state.colors[0]);
+			break;
+		case 2:
+			led_strip.solid_rainbow(1);
+			break;
+		case 3:
+			led_strip.digital_snake(state.colors, state.NUM_COLORS, 2);
+			break;
 		}
 	} else {
 		led_strip.off();
 	}
 	
 	FastLED.show();
+
+	delay(1000);
 }
 
 void check_for_new_state() {
@@ -83,6 +83,10 @@ void check_for_new_state() {
 	
 	if(udp.available()) {
 		udp.read((uint8_t *) &state, sizeof(state));
+
+		udp.beginPacket(udp.remoteIP(), udp.remotePort());
+		udp.write(0);
+		udp.endPacket();
 	} else if(Serial.available() == sizeof(state)) {
 		Serial.readBytes((uint8_t *) &state, sizeof(state));
 		Serial.write(0);
