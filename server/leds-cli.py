@@ -40,7 +40,8 @@ def query_for_variable(name: str, default_value: Any , validation_expression: Ca
 
 # 		count += 1
 
-arduino = Arduino('10.185.250.20')
+arduino = Arduino('192.168.1.237')
+#arduino = Arduino('/dev/ttyUSB0')
 
 state = State(
 	enabled=True,
@@ -72,6 +73,7 @@ arduino.state = state
 
 print('sending')
 arduino.send()
+#print(arduino.read())
 
 
 # sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
