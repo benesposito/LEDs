@@ -1,6 +1,6 @@
 #include <FastLED.h>
 
-#define TOTAL_LED_COUNT 300
+#define TOTAL_LED_COUNT 50
 
 class LEDStrip {
 private:
