@@ -1,96 +1,94 @@
-#include <FastLED.h>
+#define FASTLED_ESP8266_RAW_PIN_ORDER
+
 #include "LEDStrip.h"
+#include "comm.h"
+#include "state.h"
 
-#include <ESP8266WiFi.h>
-#include <WiFiUdp.h>
+#include <FastLED.h>
 
-#define LED_COUNT 300
-#define DATA_PIN 5
-
-#define MAX_NUM_COLORS 10
+#define LED_COUNT 50
+#define DATA_PIN D8
 
 #define UDP_PORT 5568
 
-struct state_s {
-	bool enabled;
-	uint8_t mode;
-	uint8_t brightness;
-	uint8_t NUM_COLORS;
-	CRGB colors[MAX_NUM_COLORS];
+#ifdef ESP8266
+comm_wifi* communicator;
+#else
+comm_serial* communicator;
+#endif
+
+struct state state = {
+    .enabled = true,
+    .mode = 1,
+    .brightness = 100,
+    .NUM_COLORS = MAX_NUM_COLORS,
+    .colors = {CRGB(0, 255, 0)},
 };
 
-struct state_s state;
-WiFiUDP udp;
+bool new_state;
 LEDStrip led_strip(LED_COUNT);
 
 void setup() {
-	Serial.begin(1200);
-	WiFi.begin("Chestnut Square", "8884Pavlov");
+    Serial.begin(9600);
 
-	while(WiFi.status() != WL_CONNECTED) {
-		char output[64];
-		snprintf(output, sizeof(output), "Connecting... [%d]\n", WiFi.status());
-		Serial.print(output);
-		delay(500);
-	}
+#ifdef ESP8266
+    communicator = new comm_wifi{};
+#else
+    communicator = new comm_serial{};
+#endif
 
-	int ret = udp.begin(1111);
-
-	Serial.println("Connected!");
-	Serial.println(WiFi.localIP());
-
-	FastLED.addLeds<NEOPIXEL, DATA_PIN>(led_strip.getLeds(), LED_COUNT);
-	FastLED.setBrightness(10);
-
-	state.enabled = true;
-	state.mode = 1;
-	state.brightness = 100;
-	state.NUM_COLORS = MAX_NUM_COLORS;
-	state.colors[0] = CRGB(0, 0, 255);
+    FastLED.addLeds<NEOPIXEL, DATA_PIN>(led_strip.getLeds(), LED_COUNT);
+    update_strip();
 }
 
-void loop() {	
-	check_for_new_state();
+void loop() {
+    new_state = check_for_new_state();
 
-	char state_info[256];
-	snprintf(state_info, sizeof(state_info), "(%d, %d, %d)\n", state.enabled, state.mode, state.brightness);
-	Serial.print(state_info);
-
-	if(state.enabled) {
-		switch(state.mode) {
-		// mode 0 is not used as a 'disabled' mode because I wanted to preserve the previously selected mode
-		case 1:
-			led_strip.solid_color(state.colors[0]);
-			break;
-		case 2:
-			led_strip.solid_rainbow(1);
-			break;
-		case 3:
-			led_strip.digital_snake(state.colors, state.NUM_COLORS, 2);
-			break;
-		}
-	} else {
-		led_strip.off();
-	}
-	
-	FastLED.show();
-
-	delay(1000);
+    if (new_state) {
+        update_strip();
+    }
 }
 
-void check_for_new_state() {
-	int packet_size = udp.parsePacket();
-	
-	if(udp.available()) {
-		udp.read((uint8_t *) &state, sizeof(state));
+void update_strip() {
+    char state_info[256];
+    snprintf(state_info, sizeof(state_info), "(%d, %d, %d, (%d, %d, %d))\n",
+             state.enabled, state.mode, state.brightness, state.colors[0].red,
+             state.colors[0].green, state.colors[0].blue);
+    Serial.print(state_info);
 
-		udp.beginPacket(udp.remoteIP(), udp.remotePort());
-		udp.write(0);
-		udp.endPacket();
-	} else if(Serial.available() == sizeof(state)) {
-		Serial.readBytes((uint8_t *) &state, sizeof(state));
-		Serial.write(0);
-	} else if(Serial.available() > 0) {
-		Serial.write(1);
-	}
+    if (state.enabled) {
+        switch (state.mode) {
+        // mode 0 is not used as a 'disabled' mode because I wanted to
+        // preserve the previously selected mode
+        case 1:
+            led_strip.solid_color(state.colors[0]);
+            break;
+        case 2:
+            led_strip.solid_rainbow(1);
+            break;
+        case 3:
+            led_strip.digital_snake(state.colors, state.NUM_COLORS, 2);
+            break;
+        }
+    } else {
+        led_strip.off();
+    }
+
+    FastLED.setBrightness(state.brightness);
+    FastLED.show();
+}
+
+bool check_for_new_state() {
+    communicator->update();
+
+    if (communicator->state_available()) {
+        communicator->read_state(&state);
+        communicator->write_ack(0);
+        return true;
+    } else if (Serial.available() > 0) {
+        communicator->write_ack(1);
+        return true;
+    }
+
+    return false;
 }
