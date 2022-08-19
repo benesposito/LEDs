@@ -4,6 +4,7 @@ from typing import List
 import struct
 from serial import Serial
 import socket
+from abc import ABC, abstractmethod
 
 @dataclass
 class Color:
@@ -19,49 +20,24 @@ class State:
 	_NUM_COLORS: int = 10
 	colors: List[Color] = field(default_factory=list)
 
-class Device:
-	def write(self, payload: bytes) -> int:
-		raise NotImplementedError()
-
-	def read(self) -> int:
-		raise NotImplementedError()
-
-class USBDevice(Device):
-	BAUD_RATE = 1200
-
-	def __init__(self, port: str):
-		self.io = Serial(port, USBDevice.BAUD_RATE)
-
-	def write(self, payload: bytes) -> int:
-		return self.io.write(payload)
-
-	def read(self) -> int:
-		while self.io.in_waiting <= 0:
-			return self.io.read()
-
-
-class UDPDevice(Device):
-	UDP_PORT = 1111
-
-	def __init__(self, ip: str):
-		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		self.socket.connect((ip, UDPDevice.UDP_PORT))
-
-	def write(self, payload: bytes) -> int:
-		return self.socket.send(payload)
-
-def _is_valid_ip(ip: str) -> bool:
-	subnets = ip.split('.')
-	return len(subnets) == 4 and all(0 < int(subnet) < 256 for subnet in subnets)
-
-class Arduino:
-	def __init__(self, ip_or_port: str):
+class CommDevice(ABC):
+	def __init__(self):
 		self.state = State()
 
-		if _is_valid_ip(ip_or_port):
-			self.device = UDPDevice(ip_or_port)
-		else:
-			self.device = USBDevice(ip_or_port)
+	@abstractmethod
+	def _write(self, payload: bytes) -> int:
+		return
+
+	def send(self) -> int:
+		payload: bytes = self._create_payload()
+		return self._write(payload)
+
+	@abstractmethod
+	def read(self) -> bytes:
+		return
+
+	def read_ack(self) -> int:
+		return int.from_bytes(self.read(), byteorder='little', signed=True)
 
 	def _create_payload(self) -> bytes:
 		packstring: str = '=?BBB{}B'.format(3 * self.state._NUM_COLORS)
@@ -84,12 +60,44 @@ class Arduino:
 
 		return payload
 
-	def send(self) -> int:
-		payload: bytes = self._create_payload()
-		return self.device.write(payload)
-
-	def read(self) -> int:
-		return self.device.read()
-
 	def __str__(self) -> str:
 		return str(self.state)
+
+class USBDevice(CommDevice):
+	BAUD_RATE = 1200
+
+	def __init__(self, port: str):
+		super().__init__()
+		self.io = Serial(port, USBDevice.BAUD_RATE)
+
+	def _write(self, payload: bytes) -> int:
+		return self.io.write(payload)
+
+	# TODO: fix this function, this is wrong
+	def read(self) -> bytes:
+		while self.io.in_waiting <= 0:
+			return self.io.read()
+
+class UDPDevice(CommDevice):
+	UDP_PORT = 1111
+
+	def __init__(self, ip: str):
+		super().__init__()
+		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		self.socket.connect((ip, UDPDevice.UDP_PORT))
+
+	def _write(self, payload: bytes) -> int:
+		return self.socket.send(payload)
+
+	def read(self) -> bytes:
+		return self.socket.recv(1024)
+
+def _is_valid_ip(ip: str) -> bool:
+	subnets = ip.split('.')
+	return len(subnets) == 4 and all(0 < int(subnet) < 256 for subnet in subnets)
+
+def make_comm_device(ip_or_port: str):
+	if _is_valid_ip(ip_or_port):
+		return UDPDevice(ip_or_port)
+	else:
+		return USBDevice(ip_or_port)

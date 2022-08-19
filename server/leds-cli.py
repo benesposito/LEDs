@@ -1,4 +1,4 @@
-from ledscomm import USBDevice, UDPDevice, Arduino, Color, State
+from ledscomm import CommDevice, Color, State, make_comm_device
 import dataclasses
 import sys
 from typing import Callable, Any
@@ -18,7 +18,8 @@ def query_for_variable(name: str, default_value: Any , validation_expression: Ca
 		
 		if validation_expression(value):
 			return type(default_value)(value)
-			
+
+device = make_comm_device('192.168.1.237')
 		
 
 # usb_device = USBDevice('/dev/ttyS7')
@@ -69,10 +70,10 @@ if True:
 
 print(state)
 
-arduino.state = state
+device.state = state
 
 print('sending')
-arduino.send()
+device.send()
 #print(arduino.read())
 
 
@@ -80,3 +81,4 @@ arduino.send()
 # sock.connect(('10.185.250.20', 1111))
 # sock.send(b'test\n')
 # print('connected')
+print(device.read_ack())
