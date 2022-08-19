@@ -20,29 +20,7 @@ def query_for_variable(name: str, default_value: Any , validation_expression: Ca
 			return type(default_value)(value)
 
 device = make_comm_device('192.168.1.237')
-		
-
-# usb_device = USBDevice('/dev/ttyS7')
-
-# arduino = Arduino(usb_device)
-# arduino.state.enabled = False
-# ret = arduino.send()
-# print(ret)
-
-# count = 0
-# while True:
-# 	if usb_device.io.in_waiting > 0:
-# 		# print(usb_device.io.read().decode('utf-8'), end='')
-		
-# 		if count % 50 == 0:
-# 			arduino.send()
-# 			print('sent')
-# 			count = 0
-
-# 		count += 1
-
-arduino = Arduino('192.168.1.237')
-#arduino = Arduino('/dev/ttyUSB0')
+#device = Arduino('/dev/ttyUSB0')
 
 state = State(
 	enabled=True,
@@ -74,11 +52,4 @@ device.state = state
 
 print('sending')
 device.send()
-#print(arduino.read())
-
-
-# sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-# sock.connect(('10.185.250.20', 1111))
-# sock.send(b'test\n')
-# print('connected')
 print(device.read_ack())
