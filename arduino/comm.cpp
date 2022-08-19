@@ -61,7 +61,7 @@ size_t comm_wifi::read_state(struct state* state) {
 
 size_t comm_wifi::write_ack(int ack) {
     m_udp.beginPacket(m_udp.remoteIP(), m_udp.remotePort());
-    size_t ret = m_udp.write(ack);
+    size_t ret = m_udp.write(reinterpret_cast<uint8_t*>(&ack), sizeof(ack));
     m_udp.endPacket();
 
     return ret;

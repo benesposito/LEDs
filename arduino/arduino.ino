@@ -83,11 +83,11 @@ bool check_for_new_state() {
 
     if (communicator->state_available()) {
         communicator->read_state(&state);
-        communicator->write_ack(0);
+        communicator->write_ack(1);
         return true;
     } else if (communicator->available() > 0) {
         communicator->clear_read_buffer();
-        communicator->write_ack(1);
+        communicator->write_ack(0);
         return false;
     }
 
