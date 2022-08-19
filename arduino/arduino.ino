@@ -85,9 +85,10 @@ bool check_for_new_state() {
         communicator->read_state(&state);
         communicator->write_ack(0);
         return true;
-    } else if (Serial.available() > 0) {
+    } else if (communicator->available() > 0) {
+        communicator->clear_read_buffer();
         communicator->write_ack(1);
-        return true;
+        return false;
     }
 
     return false;

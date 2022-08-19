@@ -27,8 +27,11 @@ public:
     virtual size_t read_state(struct state* state) = 0;
     virtual size_t write_ack(int ack) = 0;
 
-private:
     virtual size_t available() = 0;
+    void clear_read_buffer();
+
+private:
+    virtual int read() = 0;
 };
 
 class comm_serial final : public comm {
@@ -38,8 +41,10 @@ public:
     size_t read_state(struct state* state);
     size_t write_ack(int ack);
 
-private:
     size_t available();
+
+private:
+    virtual int read();
 };
 
 #ifdef ESP8266
@@ -61,10 +66,12 @@ public:
     size_t read_state(struct state* state);
     size_t write_ack(int ack);
 
+    size_t available();
+
     WiFiUDP& udp();
 
 private:
-    size_t available();
+    virtual int read();
 
     WiFiUDP m_udp;
 };

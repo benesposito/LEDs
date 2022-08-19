@@ -10,6 +10,12 @@ struct wifi_config {
 
 bool comm::state_available() { return available() == sizeof(struct state); }
 
+void comm::clear_read_buffer() {
+    while (available()) {
+        read();
+    }
+}
+
 void comm_serial::update() {}
 size_t comm_serial::available() { return Serial.available(); }
 
@@ -18,6 +24,8 @@ size_t comm_serial::read_state(struct state* state) {
 }
 
 size_t comm_serial::write_ack(int ack) { return Serial.write(ack); }
+
+int comm_serial::read() { return Serial.read(); }
 
 /**
  * TODO: better system for conditionally compiling comm_wifi
@@ -58,6 +66,8 @@ size_t comm_wifi::write_ack(int ack) {
 
     return ret;
 }
+
+int comm_wifi::read() { return m_udp.read(); }
 
 WiFiUDP& comm_wifi::udp() { return m_udp; }
 #endif
