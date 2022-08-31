@@ -30,6 +30,7 @@ LEDStrip led_strip(LED_COUNT);
 
 void setup() {
     Serial.begin(9600);
+    FastLED.addLeds<NEOPIXEL, DATA_PIN>(led_strip.getLeds(), LED_COUNT);
 
 #ifdef ESP8266
     communicator = new comm_wifi{};
@@ -37,7 +38,24 @@ void setup() {
     communicator = new comm_serial{};
 #endif
 
+    communicator->begin();
+
+    size_t last_print = 0;
+    while (!communicator->ready()) {
     FastLED.addLeds<NEOPIXEL, DATA_PIN>(led_strip.getLeds(), LED_COUNT);
+        if (millis() - last_print > 500) {
+            char output[64];
+            snprintf(output, sizeof(output), "Connecting... [%d]\n",
+                     communicator->status());
+            Serial.print(output);
+            last_print = millis();
+        }
+    }
+
+#ifdef ESP8266
+    Serial.println(static_cast<comm_wifi*>(communicator)->ip());
+#endif
+
     update_strip();
 }
 

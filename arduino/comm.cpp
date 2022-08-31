@@ -3,10 +3,10 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 
-struct wifi_config {
-    char ssid[32];
-    char password[32];
-};
+void comm::begin() {}
+
+int comm::status() { return 0; }
+bool comm::ready() { return true; }
 
 bool comm::state_available() { return available() == sizeof(struct state); }
 
@@ -32,25 +32,24 @@ int comm_serial::read() { return Serial.read(); }
  * hopefully I can find a way to selectively compile a 'comm_wifi.cpp' file
  */
 #ifdef ESP8266
-comm_wifi::comm_wifi() {
+struct wifi_config {
+    char ssid[32];
+    char password[32];
+};
+
+void comm_wifi::begin() {
     struct wifi_config config;
 
     EEPROM.begin(sizeof(struct wifi_config));
     EEPROM.get(0, config);
+    EEPROM.end();
 
     WiFi.begin(config.ssid, config.password);
-
-    while (WiFi.status() != WL_CONNECTED) {
-        char output[64];
-        snprintf(output, sizeof(output), "Connecting... [%d]\n", WiFi.status());
-        Serial.print(output);
-        delay(500);
-    }
-
     m_udp.begin(1111);
-    Serial.println("Connected!");
-    Serial.println(WiFi.localIP());
 }
+
+int comm_wifi::status() { return WiFi.status(); }
+bool comm_wifi::ready() { return status() == WL_CONNECTED; }
 
 void comm_wifi::update() { m_udp.parsePacket(); }
 size_t comm_wifi::available() { return m_udp.available(); }
@@ -69,5 +68,6 @@ size_t comm_wifi::write_ack(int ack) {
 
 int comm_wifi::read() { return m_udp.read(); }
 
+IPAddress comm_wifi::ip() { return WiFi.localIP(); }
 WiFiUDP& comm_wifi::udp() { return m_udp; }
 #endif
