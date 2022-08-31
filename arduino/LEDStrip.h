@@ -13,6 +13,7 @@ public:
 
     void off();
     void solid_color(CRGB color);
+    void fade(CRGB color, int frequency);
     void solid_rainbow(int hueDelta);
     void digital_snake(CRGB colors[], int num_of_colors, int segment_length);
     void analogue_snake(CHSV colors[]);

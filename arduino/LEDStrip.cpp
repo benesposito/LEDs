@@ -15,6 +15,24 @@ void LEDStrip::solid_color(CRGB color) {
         leds[i] = color;
 }
 
+void LEDStrip::fade(CRGB color, int frequency) {
+    static int brightness = 255;
+    static int dir = -1;
+
+    brightness += frequency * dir;
+
+    if (brightness < 0) {
+        brightness = 0;
+        dir = 1;
+    } else if (brightness > 255) {
+        brightness = 255;
+        dir = -1;
+    }
+
+    Serial.println(brightness);
+    FastLED.showColor(color, brightness);
+}
+
 void LEDStrip::digital_snake(CRGB colors[], int num_of_colors,
                              int segment_length) {
     static int first_color_index = 0;

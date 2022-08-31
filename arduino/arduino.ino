@@ -22,7 +22,7 @@ struct state state = {
     .mode = 1,
     .brightness = 100,
     .NUM_COLORS = MAX_NUM_COLORS,
-    .colors = {CRGB(0, 255, 0)},
+    .colors = {CRGB(100, 100, 255)},
 };
 
 bool new_state;
@@ -42,7 +42,9 @@ void setup() {
 
     size_t last_print = 0;
     while (!communicator->ready()) {
-    FastLED.addLeds<NEOPIXEL, DATA_PIN>(led_strip.getLeds(), LED_COUNT);
+        led_strip.fade(state.colors[0], 1);
+        FastLED.show();
+
         if (millis() - last_print > 500) {
             char output[64];
             snprintf(output, sizeof(output), "Connecting... [%d]\n",
@@ -86,6 +88,9 @@ void update_strip() {
             break;
         case 3:
             led_strip.digital_snake(state.colors, state.NUM_COLORS, 2);
+            break;
+        case 4:
+            led_strip.fade(state.colors[0], 10);
             break;
         }
     } else {
