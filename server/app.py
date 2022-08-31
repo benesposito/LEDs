@@ -26,7 +26,7 @@ def submit():
 	print(data['colors'])
 
 	for i in range(len(data['colors'])):
-		arduino.state.colors.append(Color(*data['colors'][i]))
+		arduino.state.colors[i] = Color(*data['colors'][i])
 
 	#param1 = data['param1']
 	#param2 = data['param2']

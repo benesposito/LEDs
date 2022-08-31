@@ -1,6 +1,5 @@
 from enum import Enum
 from dataclasses import dataclass, field, astuple
-from typing import List
 import struct
 from serial import Serial
 import socket
@@ -18,7 +17,7 @@ class State:
 	mode: int = 1
 	brightness: int = 100
 	_NUM_COLORS: int = 10
-	colors: List[Color] = field(default_factory=list)
+	colors: list[Color] = field(default_factory=lambda: [Color()] * State._NUM_COLORS)
 
 class CommDevice(ABC):
 	def __init__(self):

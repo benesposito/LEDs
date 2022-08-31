@@ -55,7 +55,7 @@ if True:
 		color.g = query_for_variable('color_%d.g' % (i), default_color.g, lambda x: 0 <= x < 256)
 		color.b = query_for_variable('color_%d.b' % (i), default_color.b, lambda x: 0 <= x < 256)
 
-		state.colors.append(color)
+		state.colors[i] = color
 
 	print()
 
