@@ -2,11 +2,24 @@ from ledscomm import CommDevice, Color, State, make_comm_device
 import dataclasses
 import sys
 from typing import Callable, Any
+import sys
+
+arg_stack = sys.argv[1:]
+arg_stack.reverse()
+
+# TODO: Allow parameters to be named rather than applying them sequentially
+def get_input(label: str) -> str:
+    if arg_stack:
+        value = arg_stack.pop()
+        print('{}{}'.format(label, value))
+        return value
+    else:
+        return input(label)
 
 def query_for_variable(name: str, default_value: Any , validation_expression: Callable[[int], bool]=lambda x: True) -> int:
 	while True:
 		label = '{:s}[{}]: '.format(name, default_value)
-		input_value: str = input(label)
+		input_value: str = get_input(label)
 		
 		if not input_value:
 			return default_value
