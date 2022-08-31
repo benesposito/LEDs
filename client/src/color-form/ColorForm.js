@@ -5,7 +5,7 @@ import ColorSlider from '../color-slider/ColorSlider';
 import Solid from './Solid';
 import Rainbow from './Rainbow';
 
-const IP = 'localhost';
+const IP = '192.168.1.235';
 
 class ColorForm extends React.Component {
 	constructor(props) {
@@ -26,18 +26,8 @@ class ColorForm extends React.Component {
 		this.handleBrightnessChange = this.handleBrightnessChange.bind(this);
 		this.handleFormChange = this.handleFormChange.bind(this);
 	}
-	
-	handleSubmit(event) {
-		event.preventDefault();
 
-		console.log({
-			mode: this.state.mode,
-			brightness: this.state.brightness,
-			colors: this.state.colors,
-			param1: this.state.param1,
-			param2: this.state.param2
-		});
-
+	submit() {
 		fetch(`http://${IP}:5000/submit`, {
 			method: 'POST',
 			headers: {
@@ -56,17 +46,34 @@ class ColorForm extends React.Component {
 		});
 	}
 
+	handleSubmit(event) {
+		event.preventDefault();
+
+		console.log({
+			mode: this.state.mode,
+			brightness: this.state.brightness,
+			colors: this.state.colors,
+			param1: this.state.param1,
+			param2: this.state.param2
+		});
+
+		this.submit();
+	}
+
 	handleModeChange(mode) {
 		this.setState({ mode });
+		this.submit();
 	}
 
 	handleBrightnessChange(value) {
 		this.setState({ brightness: value });
+		this.submit();
 	}
 	
 	handleFormChange(colors, param1, param2) {
 		console.log('test');
 		this.setState({ colors, param1, param2 });
+		this.submit();
 	}
 	
 	render() {
