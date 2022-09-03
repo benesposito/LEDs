@@ -1,41 +1,47 @@
 #include "LEDStrip.h"
+// #include <iostream>
 
-void LEDStrip::digital_snake(CRGB colors[], int num_of_colors, int segment_length) {
-    static int first_color_index = 0;
-
-    int color_index = first_color_index;
-    int segments = led_count / segment_length;
-
-    for(int i = 0; i < segments; i++) {
-        for(int j = 0; j < segment_length; j++) {
-            leds[i * segment_length + j] = colors[color_index];
-        }
-
-        ++color_index %= num_of_colors;
-    }
-    
-    for(int i = 0; i < led_count % segment_length; i++)
-        leds[led_count - segment_length + i] = colors[color_index];
-
-    first_color_index--;
-    if(first_color_index < 0)
-        first_color_index = num_of_colors - 1;
+void LEDStrip::off() {
+    for(int i = 0; i < led_count; i++)
+        leds[i] = CRGB(0, 0, 0);
 }
 
-void LEDStrip::analogue_snake(CHSV colors[]) {
+void LEDStrip::digital_snake(CRGB colors[], int num_of_colors, int segment_length) {
+    static int shifter = 0;
+    static int color_index = 0;
+    int original_color_index = color_index;
+
+    for(int led_index = 0; led_index < led_count; led_index++) {
+        leds[led_index] = colors[color_index];
+        
+        if(led_index % segment_length == shifter)
+            ++color_index %= num_of_colors;
+    }
+
+    if(++shifter % segment_length == 0) {
+        shifter = 0;
+        
+        if(original_color_index == 0)
+            color_index = num_of_colors - 1;
+        else
+            color_index = original_color_index - 1;
+        
+    } else
+        color_index = original_color_index;
+}
+
+void LEDStrip::analogue_snake(CHSV colors[], int num_of_colors) {
     static int first_led_index = 0;
-    const int colors_length = sizeof(colors) / sizeof(CRGB);
     const int wavelength = led_count;
     
     
 }
 
-void LEDStrip::color_fade(CHSV colors[]) {
-    const int colors_length = sizeof(colors) / sizeof(CHSV);
+void LEDStrip::color_fade(CHSV colors[], int num_of_colors) {
     // const int wavelength = led_count;
 
-    for(int i = 0; i < colors_length; i++) {
-        for(int j = 0; j < led_count / colors_length; j++) {
+    for(int i = 0; i < num_of_colors; i++) {
+        for(int j = 0; j < led_count / num_of_colors; j++) {
             
         }
     }
@@ -49,8 +55,8 @@ void LEDStrip::solid_rainbow(int hueDelta) {
 
     hue += hueDelta;
     
-    if(hue > 360)
-        hue -= 360;
+    if(hue >= 255)
+        hue -= 255;
 }
 
 CRGB* LEDStrip::getLeds() {
