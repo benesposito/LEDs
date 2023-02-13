@@ -25,6 +25,9 @@ struct state state = {
     .colors = {CRGB(100, 100, 255)},
 };
 
+void update_strip();
+bool check_for_new_state();
+
 bool new_state;
 LEDStrip led_strip(LED_COUNT);
 
