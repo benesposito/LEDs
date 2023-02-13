@@ -47,6 +47,7 @@ int comm_serial::read() {
 struct wifi_config {
     char ssid[32];
     char password[32];
+    char hostname[32];
 };
 
 void comm_wifi::begin() {
@@ -56,6 +57,7 @@ void comm_wifi::begin() {
     EEPROM.get(0, config);
     EEPROM.end();
 
+    WiFi.hostname(config.hostname);
     WiFi.begin(config.ssid, config.password);
     m_udp.begin(1111);
 }
