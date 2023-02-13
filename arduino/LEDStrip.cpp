@@ -29,7 +29,6 @@ void LEDStrip::fade(CRGB color, int frequency) {
         dir = -1;
     }
 
-    Serial.println(brightness);
     FastLED.showColor(color, brightness);
 }
 
